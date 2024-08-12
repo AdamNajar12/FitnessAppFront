@@ -1,0 +1,83 @@
+.contact_section {
+  display: flex;
+  justify-content: center; /* Centrer toute la section */
+  align-items: flex-start; /* Aligner les éléments en haut */
+  padding: 50px 0;
+}
+
+.contact_section .form-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Aligner les éléments en haut */
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contact_section form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  margin-right: 100px; /* Augmenter la marge droite pour séparer du conteneur d'image */
+}
+
+.form-group {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-align: left; /* Aligner le texte du label à gauche */
+  margin-left: 30px;  /* Aligner le texte du label à gauche */
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  border: none;
+  height: 50px;
+  padding: 0 15px;
+  background-color: #000;
+  color: #ffffff;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: #737272;
+}
+
+.form-group select {
+  height: 50px; /* Même hauteur que les inputs */
+}
+
+.contact_section button {
+  border: none;
+  display: inline-block;
+  padding: 12px 55px;
+  background-color: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 35px;
+  color: #000000;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.contact_section button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.contact_section .img-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin-left: 100px; /* Augmenter la marge gauche pour séparer du formulaire */
+}
