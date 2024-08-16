@@ -8,6 +8,7 @@ export class User {
   confirmPassword: string;
   role: string;
 
+
   constructor(email: string, nom: string, prenom: string, telephone: string, password: string, confirmPassword: string, role: string) {
     this.email = email;
     this.nom = nom;
@@ -16,5 +17,6 @@ export class User {
     this.password = password;
     this.confirmPassword = confirmPassword;
     this.role = role;
+
   }
 }

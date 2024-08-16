@@ -10,8 +10,10 @@ type State = {
   duree: string;
   repetitions: number;
   sets: number;
-  programme: number; // Change to programme instead of programme_id
+  programme: number;
   programs: Program[];
+  fileName?: string; // Stocker le nom du fichier
+  file?: File; // Conserver le fichier sélectionné
 };
 
 type Props = {
@@ -26,8 +28,10 @@ class EditExerciceForm extends Component<Props, State> {
     duree: "",
     repetitions: 0,
     sets: 0,
-    programme: 0, // Change to programme instead of programme_id
+    programme: 0,
     programs: [],
+    fileName: "", // Initialiser le nom du fichier
+    file: undefined, // Aucun fichier sélectionné par défaut
   };
 
   componentDidMount() {
@@ -48,7 +52,8 @@ class EditExerciceForm extends Component<Props, State> {
         duree: exercice.duree,
         repetitions: exercice.repetitions,
         sets: exercice.sets,
-        programme: exercice.programme.id, // Assuming the response includes program details
+        fileName: exercice.file, // Assurez-vous que c'est le nom du fichier
+        programme: exercice.programme.id,
       });
     } catch (error) {
       console.error("Error fetching the exercise!", error);
@@ -72,31 +77,56 @@ class EditExerciceForm extends Component<Props, State> {
     }));
   };
 
+  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : undefined;
+    if (file) {
+      this.setState({ file, fileName: file.name });
+    }
+  };
+
   handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const { nom, type, duree, repetitions, sets, programme } = this.state;
+    const { nom, type, duree, repetitions, sets, programme, fileName, file } = this.state;
     const { id, navigate } = this.props;
 
     try {
-      if (id) {
-        await axios.put(`http://localhost:8000/api/exercice/${id}/`, {
-          nom,
-          type,
-          duree,
-          repetitions,
-          sets,
-          programme,
+      let newFileName = fileName; // Conserver le nom du fichier existant par défaut
+
+      // Vérifier si un nouveau fichier a été sélectionné
+      if (file) {
+        // Préparer les données pour le téléchargement du fichier
+        const formData = new FormData();
+        formData.append("File", file);
+
+        // Télécharger le fichier
+        const fileUploadResponse = await axios.post("http://localhost:8000/api/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
         });
-      } else {
-        await axios.post("http://localhost:8000/api/exercice/", {
-          nom,
-          type,
-          duree,
-          repetitions,
-          sets,
-          programme,
-        });
+
+        // Extraire le nom du fichier (ou le chemin complet si nécessaire)
+        newFileName = fileUploadResponse.data.url.split('/').pop(); // Extraire le nom du fichier
       }
+
+      // Soumettre les données de l'exercice avec le nom du fichier
+      const exerciseData = {
+        nom,
+        type,
+        duree,
+        repetitions,
+        sets,
+        programme,
+        file: newFileName,  // Utiliser le nom du fichier
+      };
+
+      if (id) {
+        await axios.put(`http://localhost:8000/api/exercice/${id}/`, exerciseData);
+      } else {
+        await axios.post("http://localhost:8000/api/exercice/", exerciseData);
+      }
+
       navigate("/ShowExercices");
     } catch (error) {
       console.error("Error saving the exercise!", error);
@@ -108,7 +138,7 @@ class EditExerciceForm extends Component<Props, State> {
   };
 
   render() {
-    const { nom, type, duree, repetitions, sets, programme, programs } = this.state;
+    const { nom, type, duree, repetitions, sets, programme, programs, fileName } = this.state;
 
     return (
       <DashboardSlider>
@@ -199,6 +229,18 @@ class EditExerciceForm extends Component<Props, State> {
                             </select>
                           </div>
                           <div className="form-group">
+                            <label>Fichier</label>
+                            <input
+                              type="file"
+                              name="file"
+                              onChange={this.handleFileChange}
+                              className="form-control form-control-lg"
+                            />
+                            {fileName && (
+                              <p className="form-text text-muted">Current file: {fileName}</p>
+                            )}
+                          </div>
+                          <div className="form-group">
                             <div className="card-action">
                               <button className="btn btn-success" type="submit">
                                 Submit
@@ -235,11 +277,11 @@ class EditExerciceForm extends Component<Props, State> {
   }
 }
 
-const EditExerciceFormWrapper = () => {
-  const { id } = useParams<{ id: string }>();
+const EditExerciceFormWrapper = (props: any) => {
+  const { id } = useParams();
   const navigate = useNavigate();
-
-  return <EditExerciceForm id={id} navigate={navigate} />;
+  return <EditExerciceForm {...props} id={id} navigate={navigate} />;
 };
 
 export default EditExerciceFormWrapper;
+  

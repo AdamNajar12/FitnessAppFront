@@ -11,7 +11,7 @@ export class Exercice {
     repetitions :number;
     sets:number;
     programme:Program;
-    
+    file:string
     
   
     constructor(
@@ -21,7 +21,8 @@ export class Exercice {
         duree: string,
         repetitions: number,
         sets: number,
-        programme: Program = { id: 0, nom: '', description: '', duree: '' } // Valeur par défaut pour program
+        programme: Program = { id: 0, nom: '', description: '', duree: '' } ,
+        file:string
     ) {
         this.id = id;
         this.nom = nom;
@@ -30,6 +31,7 @@ export class Exercice {
         this.repetitions = repetitions;
         this.sets = sets;
         this.programme = programme;
+        this.file = file;
     }
     
   }

@@ -4,27 +4,31 @@ import axios from "axios";
 import DashboardSlider from "../DashboardComponent/DashboradSlider";
 import { Program } from "../../Models/Program";
 
+
 type State = {
   nom: string;
   type: string;
   duree: string;
   repetitions: number;
   sets: number;
-  programme: number;  // Change to programme instead of programme_id
+  programme: number;
   programs: Program[];
   redirect: string | null;
+  file: File | null;  // Ajoutez cet état pour gérer le fichier
 };
 
 class ExerciceForm extends Component<{}, State> {
+ 
   state: State = {
     nom: "",
     type: "",
     duree: "",
     repetitions: 0,
     sets: 0,
-    programme: 0,  // Change to programme instead of programme_id
+    programme: 0,
     programs: [],
     redirect: null,
+    file: null,  // Initialise l'état du fichier
   };
 
   async componentDidMount() {
@@ -37,28 +41,65 @@ class ExerciceForm extends Component<{}, State> {
   }
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    this.setState({ [event.target.name]: event.target.value } as any);
+    const { name, value } = event.target;
+    this.setState({ [name]: value } as any);
   };
+
+  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    this.setState({ file });  // Mettez à jour l'état avec le fichier sélectionné
+  };
+  
 
   handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const { nom, type, duree, repetitions, sets, programme } = this.state;
-
+    const { nom, type, duree, repetitions, sets, programme, file } = this.state;
+  
     try {
-      await axios.post("http://localhost:8000/api/exercice/", {
+      let fileUrl = "";
+      if (file) {
+        // Si un fichier est sélectionné, téléchargez-le d'abord
+        const formData = new FormData();
+        formData.append("File", file);
+  
+        const fileUploadResponse = await axios.post("http://localhost:8000/api/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          },
+          withCredentials: true,  // Assurez-vous que les cookies sont envoyés
+        });
+  
+        fileUrl = fileUploadResponse.data.url.split('/').pop();  // Récupère l'URL du fichier téléchargé
+      }
+  
+      // Affiche les données envoyées au serveur
+      const dataToSend = {
         nom,
         type,
         duree,
         repetitions,
         sets,
-        programme,  // Send programme instead of programme_id
+        file: fileUrl,
+        programme,
+          // Inclut l'URL du fichier dans les données du formulaire
+      };
+      console.log("Data to send:", JSON.stringify(dataToSend, null, 2));
+  
+      // Soumettez ensuite le formulaire avec l'URL du fichier
+      await axios.post("http://localhost:8000/api/exercice/", dataToSend, {
+        withCredentials: true,  // Assurez-vous que les cookies sont envoyés
       });
+  
       this.setState({ redirect: "/ShowExercices" });
     } catch (error) {
-      console.error("There was an error adding the exercise!", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
     }
   };
-
+  
   handleCancel = () => {
     this.setState({ redirect: "/ShowExercices" });
   };
@@ -138,9 +179,18 @@ class ExerciceForm extends Component<{}, State> {
                             />
                           </div>
                           <div className="form-group">
+                            <label>Upload Exercice tutorial</label>
+                            <input
+                              type="file"
+                              name="file"
+                              className="form-control form-control-lg"
+                              onChange={this.handleFileChange}  // Gère la sélection du fichier
+                            />
+                          </div>
+                          <div className="form-group">
                             <label>Programme</label>
                             <select
-                              name="programme"  // Change to programme instead of programme_id
+                              name="programme"
                               className="form-control form-control-lg"
                               onChange={this.handleChange}
                             >
