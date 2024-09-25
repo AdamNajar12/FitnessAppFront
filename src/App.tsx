@@ -15,6 +15,8 @@ import EditProgramFormWrapper from './CoachUI/ProgramInterface/EditProgramForm';
 import Exercices from './CoachUI/ExercicesInterface/ShowExercices';
 import ExerciceForm from './CoachUI/ExercicesInterface/ExerciceForm';
 import EditExerciceFormWrapper from './CoachUI/ExercicesInterface/EditExerciceForm';
+import Dashboard from './CoachUI/DashboradMainComponent/Dashborad';
+import ChartDashboard from './CoachUI/Satistics/chart';
 
 function App() {
   return (
@@ -30,7 +32,9 @@ function App() {
                <Route path="/ShowExercices" element={<Exercices/>} />
                <Route path="/AddExercice" element={<ExerciceForm/>}/>
                <Route path="/EditExercice/:id" element={<EditExerciceFormWrapper />} />
-          
+               <Route path="/DashboardCoach" element={<Dashboard/>} />
+               <Route path="/chartCoach" element={<ChartDashboard/>} />
+
       
               </Routes>
             </BrowserRouter>
